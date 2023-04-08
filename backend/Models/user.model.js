@@ -12,20 +12,15 @@ const userSchema = new mongoose.Schema({
         required:true,
         trim:true,
         unique: true,
-        lowercase: true
+        lowercase: true,
+        uppercase:false
     },
     bio:{
         type:String,
         maxlength:200
-    },
-    created_at: {
-        type: Date,
-        default: Date.now,
-      },
-    updated_at: {
-        type: Date,
-        default: Date.now,
-      } 
+    } 
+},{
+    timestamps:true
 })
 
 const UserModel = mongoose.model("user",userSchema);

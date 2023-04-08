@@ -12,7 +12,7 @@ const newUser = async(req,res,next)=>{
         console.log(error)
     }
     if(existingUser){
-        const token = jwt.sign({email:existingUser.email},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
+        const token = jwt.sign({email:existingUser.email,id:existingUser._id.toString()},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
             expiresIn:"7d"
         })
         return res.status(200).json({message:"Login Successful",user:existingUser,token})
@@ -27,28 +27,68 @@ const newUser = async(req,res,next)=>{
         return console.log(error)
     }
 
-    
-    const token = jwt.sign({email},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
+    const token = jwt.sign({email,id:newUser._id.toString()},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
         expiresIn:"7d"
     }) 
     return res.status(201).json({message:"Register successful",newUser,token});
 
 }
 
-const singleUser = ()=>{
-
+const singleUser = async(req,res,next)=>{
+    const {id} = req.params;
+    let existingUser;
+    try {
+        existingUser = await UserModel.findById({_id:id});
+    } catch (error) {
+        console.log(error)
+    }
+    if(!existingUser){
+        return res.status(404).json({message:"User not found!!!"})
+    }
+   return res.status(200).json({message:"User Credentials",existingUser});
 }
 
-const updateUser = ()=>{
-
+const updateUser = async(req,res,next)=>{
+    const {id} = req.params;
+    const {name,bio} = req.body; 
+    let existingUser;
+    try {
+        existingUser = await UserModel.findByIdAndUpdate(id,{name,bio},{new:true})
+    } catch (error) {
+        console.log(error)
+    }
+    if(!existingUser){
+        return res.status(404).json({message:"Something went wrong"})
+    }
+       return res.status(200).json({message:"Update user credentials",existingUser});
 }
 
-const deleteUser = ()=>{
 
+const deleteUser = async(req,res,next)=>{
+    const {id} = req.params;
+    let existingUser;
+    try {
+        existingUser = await UserModel.findOneAndDelete({_id:id}); 
+    } catch (error) {
+        console.log(error)
+    }
+    if(!existingUser){
+        return res.status(500).json({message:"Unable to delete"})
+     }
+     return res.status(204).json({message:"Successfully Deleted"})
 }
 
-const getAllUsers = ()=>{
-
+const getAllUsers = async(req,res,next)=>{
+    let allUsers;
+    try {
+        allUsers = await UserModel.find();
+    } catch (error) {
+        console.log(error)
+    }
+    if(!allUsers){
+        return res.status(400).json({message:"Users not found"});
+    }
+    return res.status(200).json({message:"All users",users:allUsers});
 }
 
 const topFiveActiveUsers =()=>{
