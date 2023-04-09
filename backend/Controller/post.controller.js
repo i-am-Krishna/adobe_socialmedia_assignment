@@ -123,6 +123,14 @@ const newPost =async(req,res,next)=>{
 
   
  const topFiveLikedPost =async(req,res,next)=>{
+    let mostLiked ;
+    try {
+        mostLiked = await PostModel.find().sort({ likes: -1 }).limit(5)
+        
+    } catch (error) {
+        console.log(error)   
+    }
+    return res.status(201).json({mostLiked})
 
  }
 

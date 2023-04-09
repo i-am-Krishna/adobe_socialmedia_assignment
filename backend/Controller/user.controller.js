@@ -1,7 +1,6 @@
 const UserModel = require("../Models/user.model");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-
 const newUser = async(req,res,next)=>{
     let {name,email,bio} = req.body;
     let existingUser;
@@ -16,7 +15,6 @@ const newUser = async(req,res,next)=>{
         })
         return res.status(200).json({message:"Login Successful",user:existingUser,token})
     }
-
     const newUserRegister = new UserModel({
         name,email,bio
     });
@@ -25,7 +23,6 @@ const newUser = async(req,res,next)=>{
     } catch (error) {
         return console.log(error)
     }
-
     const token = jwt.sign({email,id:newUserRegister._id.toString()},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
         expiresIn:"7d"
     }) 
@@ -60,8 +57,6 @@ const updateUser = async(req,res,next)=>{
     }
        return res.status(200).json({message:"Update user credentials",existingUser});
 }
-
-
 const deleteUser = async(req,res,next)=>{
     const {id} = req.params;
     let existingUser;
@@ -75,7 +70,6 @@ const deleteUser = async(req,res,next)=>{
      }
      return res.status(204).json({message:"Successfully Deleted"})
 }
-
 const getAllUsers = async(req,res,next)=>{
     let allUsers;
     try {
@@ -88,12 +82,15 @@ const getAllUsers = async(req,res,next)=>{
     }
     return res.status(200).json({message:"All users",allUsers});
 }
-
-const topFiveActiveUsers =()=>{ 
-
+const topFiveActiveUsers =async(req,res,next)=>{ 
+    const users = await UserModel.aggregate([
+        { $lookup: { from: 'posts', localField: 'user_id', foreignField: 'author', as: 'posts' } },
+        { $project: { name: 1, email: 1, postCount: { $size: '$posts' } } },
+        { $sort: { postCount: -1 } },
+        { $limit: 5 }
+      ]);
+      res.json(users);
 }
- 
-
 module.exports = {
     newUser,singleUser,updateUser,deleteUser,getAllUsers,topFiveActiveUsers
 }
