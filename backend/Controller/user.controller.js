@@ -2,7 +2,6 @@ const UserModel = require("../Models/user.model");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-
 const newUser = async(req,res,next)=>{
     let {name,email,bio} = req.body;
     let existingUser;
@@ -18,20 +17,19 @@ const newUser = async(req,res,next)=>{
         return res.status(200).json({message:"Login Successful",user:existingUser,token})
     }
 
-    const newUser = new UserModel({
+    const newUserRegister = new UserModel({
         name,email,bio
     });
     try {
-        await newUser.save()
+        await newUserRegister.save()
     } catch (error) {
         return console.log(error)
     }
 
-    const token = jwt.sign({email,id:newUser._id.toString()},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
+    const token = jwt.sign({email,id:newUserRegister._id.toString()},process.env.ACCESS_TOKEN_PRIVATE_KEY,{
         expiresIn:"7d"
     }) 
-    return res.status(201).json({message:"Register successful",newUser,token});
-
+    return res.status(201).json({message:"Register successful",newUserRegister,token});
 }
 
 const singleUser = async(req,res,next)=>{
@@ -81,17 +79,17 @@ const deleteUser = async(req,res,next)=>{
 const getAllUsers = async(req,res,next)=>{
     let allUsers;
     try {
-        allUsers = await UserModel.find();
+        allUsers = await UserModel.find().count();
     } catch (error) {
         console.log(error)
     }
     if(!allUsers){
         return res.status(400).json({message:"Users not found"});
     }
-    return res.status(200).json({message:"All users",users:allUsers});
+    return res.status(200).json({message:"All users",allUsers});
 }
 
-const topFiveActiveUsers =()=>{
+const topFiveActiveUsers =()=>{ 
 
 }
  

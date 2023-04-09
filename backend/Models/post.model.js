@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const postSchema = mongoose.model({
+const postSchema = new mongoose.Schema({
     user_id:{
         type:String,
         required:true,
@@ -8,19 +8,18 @@ const postSchema = mongoose.model({
     content:{
         type:String,
         required:true,
-        maxlength:300,
-    },
-    created_at: {
-        type: Date,
-        default: Date.now,
-      },
-    updated_at: {
-        type: Date,
-        default: Date.now,
-      },
-      likes:{
+        minlength:1,
+        maxlength:300
+    }, 
+    likes:{
         type:Number,
-        required:true,
-        default:0
-      }
+        default:0,
+        min:0
+    }
+},{
+    timestamps:true
 })
+
+const PostModel = mongoose.model("post",postSchema);
+
+module.exports = PostModel;
